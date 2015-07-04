@@ -1,0 +1,98 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        "location",
+        "configurable"
+    ],
+    "companyName": "isaac.johnson@gmail.com",
+    "longName": "ActivityCounter",
+    "projectType": "pebblejs",
+    "resources": {
+        "media": [
+            {
+                "file": "images/menu_icon.png",
+                "menuIcon": true,
+                "name": "IMAGE_MENU_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/logo_splash.png",
+                "name": "IMAGE_LOGO_SPLASH",
+                "type": "png"
+            },
+            {
+                "file": "images/tile_splash.png",
+                "name": "IMAGE_TILE_SPLASH",
+                "type": "png"
+            },
+            {
+                "file": "fonts/UbuntuMono-Regular.ttf",
+                "name": "MONO_FONT_14",
+                "type": "font"
+            },
+            {
+                "file": "images/target_32.png",
+                "name": "IMAGES_TARGET_32_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/target_64.png",
+                "name": "IMAGES_TARGET_64_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/walking_32.png",
+                "name": "IMAGES_WALKING_32_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/walking_64.png",
+                "name": "IMAGES_WALKING_64_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/biking_32.png",
+                "name": "IMAGES_BIKING_32_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/biking_64.png",
+                "name": "IMAGES_BIKING_64_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/swimming_32.png",
+                "name": "IMAGES_SWIMMING_32_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/swimming_64.png",
+                "name": "IMAGES_SWIMMING_64_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/running_32.png",
+                "name": "IMAGES_RUNNING_32_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/running_64.png",
+                "name": "IMAGES_RUNNING_64_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/green_activity.png",
+                "name": "IMAGES_GREEN_ACTIVITY_PNG",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "ActivityCounter",
+    "uuid": "5f4559f5-ce83-45d8-8643-33d888d66f0f",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
