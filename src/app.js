@@ -17,6 +17,9 @@ var unitTypeKey = 7;
 var startDateKey = 8;
 var endDateKey = 9;
 
+var enableNotifications = 14;
+var usersNameKey = 15;
+
 var unitTypeMenu= [
   {
     title: "Laps"
@@ -266,6 +269,13 @@ main.on('longClick','select',function(e) {
 main.on('click', 'select', function(e) {
   var unitTypeVal = localStorage.getItem(unitTypeKey);
   var keyVal = localStorage.getItem(SelectedActivity);
+  var usersName = localStorage.getItem(usersNameKey);
+  var nVal = localStorage.getItem(enableNotifications);
+  if (!nVal)
+  {
+    nVal = "enabled";
+  }
+        
   var menu = new UI.Menu({
     sections: [{
       items: [{
@@ -276,8 +286,14 @@ main.on('click', 'select', function(e) {
         title: 'Units',
         subtitle: ' ' + unitTypeVal
       }, {
+        title: 'Notifications',
+        subtitle: ' ' + nVal
+      }, {
         title: 'About',
         subtitle: ' howdy howdy'
+      }, {
+        title: 'User Name',
+        subtitle: ' ' + usersName
       }]
     }]
   });
@@ -361,6 +377,12 @@ main.on('click', 'select', function(e) {
   
       } else if (e.itemIndex === 2)
       {
+        menu.hide();
+        toggleNotifications();
+        mainScreen(main);
+        main.show();
+      } else if (e.itemIndex === 3)
+      {
         // 3rd item    
         menu.hide();
         var aboutS = new UI.Window();
@@ -420,6 +442,10 @@ Pebble.addEventListener('webviewclosed',
         // use hasOwnProperty to filter out keys from the Object.prototype
         if (configuration.hasOwnProperty(k)) {
             console.log('key is: ' + k + ', value is: ' + configuration[k]);
+            if (k === "name")
+            {
+              setLSItem('users name',usersNameKey,configuration[k]);
+            }
             var pattern = /-/;
             var foundList = k.split(pattern);
             var i, len;
@@ -487,6 +513,20 @@ function incrCounter()
   setLSItem('end time',endTimeKey,duration + " min...");
 }
 
+function toggleNotifications()
+{
+  
+  var nVal = localStorage.getItem(enableNotifications);
+  if (!nVal)
+  {
+    nVal = "disabled";
+  } else if (nVal === "disabled")
+  {
+    nVal = "enabled";
+  }
+  setLSItem("toggle notification",enableNotifications,nVal);
+}
+
 function decrCounter()
 {
   Vibe.vibrate('double'); 
@@ -500,7 +540,15 @@ function decrCounter()
 
 function resetCounter()
 {
-  notifyOnComplete();
+  var nVal = localStorage.getItem(enableNotifications);
+  if (!nVal)
+  {
+    nVal = "enabled";
+  }
+  if (nVal === "enabled")
+  {
+    notifyOnComplete();
+  }
   setLSItem('start time',startTimeKey,"");
   setLSItem('end time',endTimeKey,"");
   setLSItem('counter reset',counterNum,0);
