@@ -31,6 +31,11 @@
                 "type": "font"
             },
             {
+                "file": "images/eliseImageSmall.png",
+                "name": "IMAGES_ELISEIMAGESMALL_PNG",
+                "type": "png"
+            },
+            {
                 "file": "images/target_32.png",
                 "name": "IMAGES_TARGET_32_PNG",
                 "type": "png"

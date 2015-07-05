@@ -7,17 +7,15 @@
 var UI = require('ui');
 var Vector2 = require('vector2');
 var Vibe = require('ui/vibe');
-var Timeline = require('pebble-api');
-var timeline = new Timeline();
 
-var API_ROOT = 'https://timeline-api.getpebble.com/';
-var myToken;
 var SelectedActivity = 2;
 var counterNum = 3;
 var startTimeKey = 4;
 var ActivityKey = 5;
 var endTimeKey = 6;
 var unitTypeKey = 7;
+var startDateKey = 8;
+var endDateKey = 9;
 
 var unitTypeMenu= [
   {
@@ -58,8 +56,75 @@ var unitTypeMenu= [
   }
 ];
 
+function aboutScreen(window)
+{
+  // Top rectangle to blank out the page
+  var rect = new UI.Rect({ 
+    position: new Vector2(0, 0),
+    size: new Vector2(144, 168),
+    backgroundColor:'white'
+  });
+
+  var Logo = new UI.Image({
+    position: new Vector2(0,0),
+    size: new Vector2(144,168),
+    backgroundColor: 'clear',
+    borderColor: 'clear',
+    image: 'images/eliseImageSmall.png'
+  });
+
+  var activityName = new UI.Text({
+    position: new Vector2(0, 0),
+    size: new Vector2(144, 40),
+    text: "ActivityTracker",
+    color: 'black',
+    font:'Gothic-24-Bold',
+    textAlign:'center',
+    backgroundColor:'clear'
+    
+  });
+  
+  var authorName = new UI.Text({
+    position: new Vector2(80, 112),
+    size: new Vector2(64, 36),
+    text: "Isaac Johnson",
+    color: 'black',
+    font:'Gothic-14',
+    textAlign:'center',
+    backgroundColor:'clear'
+  }); 
+  
+  window.add(rect);
+  window.add(Logo);
+  window.add(activityName);
+  window.add(authorName);
+}
+
 function mainScreen(window)
 {
+  var startTimeFNColor = "black";
+  var startTimeBGColor = "white";
+  var endTimeFNColor = "white";
+  var endTimeBGColor = "black";
+  if(Pebble.getActiveWatchInfo) {
+    try {
+        var watchinfo = Pebble.getActiveWatchInfo();
+        var platform=watchinfo.platform;
+        if (platform === "basalt")
+        {
+          startTimeFNColor = "darkGreen";
+          startTimeBGColor = 'lightGray';
+          endTimeFNColor = "bulgarianRose";
+          endTimeBGColor = 'babyBlueEyes';
+        }
+      } catch(err) {
+        startTimeFNColor = "darkGreen";
+        startTimeBGColor = 'lightGray';
+        endTimeFNColor = "bulgarianRose";
+        endTimeBGColor = 'babyBlueEyes';
+      }
+  } 
+  
   var keyVal = localStorage.getItem(SelectedActivity);
   var cVal = localStorage.getItem(counterNum);
   var unitTypeVal = localStorage.getItem(unitTypeKey);
@@ -121,25 +186,26 @@ function mainScreen(window)
     backgroundColor:'white'
     
   });
-  
+
   var startTimeText = new UI.Text({
     position: new Vector2(0, 0),
     size: new Vector2(144, 24),
     text: startTime,
-    color: 'darkGreen',
+    color: startTimeFNColor,
     font:'Gothic-18-Bold',
     textAlign:'center',
-    backgroundColor:'lightGray'
+    backgroundColor:startTimeBGColor 
   });
- 
+
+  
   var endTimeText = new UI.Text({
     position: new Vector2(0, 24),
     size: new Vector2(144, 24),
     text: endTime,
-    color: 'bulgarianRose',
+    color: endTimeFNColor,
     font:'Gothic-18-Bold',
     textAlign:'center',
-    backgroundColor:'babyBlueEyes'
+    backgroundColor: endTimeBGColor
   });
     //font:'Roboto-Condensed-21',
   
@@ -209,6 +275,9 @@ main.on('click', 'select', function(e) {
       }, {
         title: 'Units',
         subtitle: ' ' + unitTypeVal
+      }, {
+        title: 'About',
+        subtitle: ' howdy howdy'
       }]
     }]
   });
@@ -249,6 +318,7 @@ main.on('click', 'select', function(e) {
             //activityMenu.item(0, i, { title: " " + titleText, subtitle: " " + subText, icon: iconText });
             activityMenu.item(0, i, { title: " " + titleText, icon: iconText });
         }  
+        menu.hide();
         activityMenu.show();
         
         activityMenu.on('select', function(ee) {
@@ -264,10 +334,12 @@ main.on('click', 'select', function(e) {
             setLSItem('unitType',unitTypeKey,"Miles");
           }
           // now redraw main
+          activityMenu.hide();
           mainScreen(main);
           main.show();
         });
-      } else {
+      } else if (e.itemIndex === 1)
+      {
         // second item
         var displayMenu = new UI.Menu({
           sections: [{
@@ -280,12 +352,20 @@ main.on('click', 'select', function(e) {
           console.log('unit type setting to ' + ee.itemIndex);
           setLSItem('unitType',unitTypeKey,unitTypeMenu[ee.itemIndex].title);
           // now redraw main
+          displayMenu.hide();
           mainScreen(main);
           main.show();
         });
-        
+        menu.hide();
         displayMenu.show();
   
+      } else if (e.itemIndex === 2)
+      {
+        // 3rd item    
+        menu.hide();
+        var aboutS = new UI.Window();
+        aboutScreen(aboutS);
+        aboutS.show();
       }
   });
   menu.show();
@@ -402,7 +482,8 @@ function incrCounter()
   setLSItem('counter incr',counterNum,cVal);
   var tD = new Date();
   var startTime = localStorage.getItem(startTimeKey);
-  var duration = Math.ceil((Date.parse(tD.toLocaleDateString() + ' ' + tD.toLocaleTimeString()) - Date.parse(tD.toLocaleDateString() + ' ' + startTime))/60000);
+  var startDate = localStorage.getItem(startDateKey);
+  var duration = Math.ceil((Date.parse(tD.toLocaleDateString() + ' ' + tD.toLocaleTimeString()) - Date.parse(startDate + ' ' + startTime))/60000);
   setLSItem('end time',endTimeKey,duration + " min...");
 }
 
@@ -419,7 +500,7 @@ function decrCounter()
 
 function resetCounter()
 {
-  requestPin();
+  notifyOnComplete();
   setLSItem('start time',startTimeKey,"");
   setLSItem('end time',endTimeKey,"");
   setLSItem('counter reset',counterNum,0);
@@ -432,6 +513,7 @@ function startTimeIfUnset()
   {
     var thisTime = new Date();
     setLSItem('start time',startTimeKey,thisTime.toLocaleTimeString());
+    setLSItem('start date',startDateKey,thisTime.toLocaleDateString());
     setLSItem('end time',endTimeKey,"");
   }
 }
@@ -441,118 +523,59 @@ function startTheTime()
   var thisTime = new Date();
   setLSItem('end time',endTimeKey,"");
   setLSItem('start time',startTimeKey,thisTime.toLocaleTimeString());
+  setLSItem('start date',startDateKey,thisTime.toLocaleDateString());
 }
 
 function endTheTime()
 {
   var thisTime = new Date();
   setLSItem('end time',endTimeKey,thisTime.toLocaleTimeString());
+  setLSItem('end date',endDateKey,thisTime.toLocaleDateString());
 }
 
 
 /* ------------------------------------
- TIMELINE STUFF
+ End of Activity Notification
  ---------------------------------------*/
 
-// request a pin to be sent to the userToken
-//function requestPin(userToken, minutesToAdd) {
-function requestPin() {
-  var xhr = new XMLHttpRequest();
-
-  // isaac - based on what i know now
+function notifyOnComplete() {
   var tD = new Date();
-  var milliseconds = Math.floor(tD.getTime()/1000);
-  var pinName = 'activity' + ActivityKey + milliseconds;
-  var url = API_ROOT + 'v1/user/pins/' + pinName;
-  
-  
+ 
+  // startTime or now if not set
   var startTime = localStorage.getItem(startTimeKey);
-  var dateObj = new Date(tD.toLocaleDateString() + " " + startTime);
+  var startDate = localStorage.getItem(startDateKey);
+  var dateObj = new Date(startDate + " " + startTime);
   if (!startTime)
   {
     dateObj = new Date();    
   }
   
   var unitTypeVal = localStorage.getItem(unitTypeKey);
+  
+  // activity name or walking if not set
   var keyVal = localStorage.getItem(SelectedActivity);
   if (!keyVal)
   {
     keyVal = "walking";
   }
+  
+  // End Time or Now if not set
   var endTime = localStorage.getItem(endTimeKey);
+  var endDate = localStorage.getItem(endDateKey);
   if ((!endTime)||(endTime.indexOf("min") > -1))
   {
     endTime = tD.toLocaleTimeString();
+    endDate = tD.toLocaleDateString();
   }
   
   // date hardcoded cause its not important.. we are just mathing time...
-  console.log("test start " + startTime + " and end " + endTime);
-  var duration = Math.ceil((Date.parse(tD.toLocaleDateString() + ' ' + endTime) - Date.parse(tD.toLocaleDateString() + ' ' + startTime))/60000);
+  console.log("times: start " + startTime + " and end " + endTime);
+  console.log("local Date string: " + tD.toLocaleDateString());
+  var duration = Math.ceil((Date.parse(endDate + ' ' + endTime) - Date.parse(startDate + ' ' + startTime))/60000);
   console.log('duration:' + duration);
   
   var cVal = localStorage.getItem(counterNum);
-//  "time": "2014-03-07T08:01:10.229Z",
-  // dateObj.getFullYear() + "-" + 
-  //var jsonBlob = '{"id": "' + pinName + '", "time": "' + dateObj.toJSON() + '", "layout": { "type": "sportsPin", "shortTitle": "' + keyVal + ' reached ' + cVal + ' end time ' + endTime + '"}}';
-  var shortTitle = keyVal + ':' + startTime +' ' + endTime + ' (' + duration + ' min): ' + cVal + ' ' + unitTypeVal;
-  var jsonBlob = '{"id": "' + pinName + '", "time": "' + dateObj.toJSON() + '", "layout": { "type": "genericPin", "shortTitle": "' + shortTitle + '", "tinyIcon": "system://images/SCHEDULED_EVENT"}}';
-  //var jsonConv = JSON.stringify(jsonBlob);
+  var shortTitle = keyVal + ':' + startDate + " " + startTime + ' - ' + endDate + " " + endTime + ' (' + duration + ' min): ' + cVal + ' ' + unitTypeVal;
   Pebble.showSimpleNotificationOnPebble("Activity Tracker", shortTitle);
-  
-  console.log("url: " + url);
-  console.log("json: " + jsonBlob);
-  //console.log("json: " + jsonConv);
-  console.log("myToken: " + myToken);
-  xhr.open( 'PUT', url, false );
-  //xhr.setRequestHeader( 'Content-Type', 'application/json;charset=UTF-8' );
-  xhr.setRequestHeader( 'Content-Type', 'application/json' );
-  xhr.setRequestHeader( 'X-User-Token', myToken );
-  xhr.send(jsonBlob);
-  console.log("response:" + xhr.responseText);
-  if (xhr.responseText === "OK")
-  {
-    Vibe.vibrate('long'); 
-  }
-//  xhr.send( jsonBlob );
-  
-  // construct the url for the api
-  /*
-  var url = API_ROOT + '/senduserpin/' + userToken + '/' + minutesToAdd;
-  console.log(url);
-  xhr.open('GET', url, true);
-  xhr.onload = function() {
-    console.log('requestPin server response: ' + xhr.responseText);
-
-    // Update text on the watch to say we've sent the pin
-    Pebble.sendAppMessage({text: 'Sent!\nCheck your timeline!'});
-
-    // set a timer to quit the app in 2 seconds
-    setTimeout(function() {
-      Pebble.sendAppMessage({quit: true});
-    }, 2000);
-  };
-
-  xhr.send();
-  */
+  Vibe.vibrate('long'); 
 }
-
-// ready event
-//Pebble.addEventListener('ready', function(e) {
-
-  // get the timeline token
-  Pebble.getTimelineToken(function (token) {
-
-    // tell the C side we're ready
-    Pebble.sendAppMessage({ready: true});
-
-    // log the timeline token
-    console.log('My timeline token is ' + token);
-
-    // store the token in our global var
-    myToken = token;
-
-  }, function (error) {
-    // log the error
-    console.log('Error getting timeline token: ' + error);
-  });
-//});
