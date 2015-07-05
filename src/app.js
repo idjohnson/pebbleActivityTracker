@@ -222,8 +222,6 @@ function mainScreen(window)
     backgroundColor:'white'
   });
   
-  console.log('images/' + keyVal + '_64.png');
-  
   window.add(rect);
   window.add(activityLogo);
   window.add(activityName);
@@ -236,16 +234,6 @@ function mainScreen(window)
 var main = new UI.Window();
 mainScreen(main);
 main.show();
-
-/*
-var main = new UI.Card({
-  title: 'Pebble.js',
-  icon: 'images/menu_icon.png',
-  subtitle: 'Hello World! ' + keyVal,
-  body: 'Press any button.'
-});
-main.show();
-*/
 
 main.on('click','up',function(e) {
   incrCounter();
@@ -300,8 +288,6 @@ main.on('click', 'select', function(e) {
  
   //configuration menu
   menu.on('select', function(e) {
-    console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-    console.log('The item is titled "' + e.item.title + '"');
     if (e.itemIndex === 0)
       {
         //
@@ -338,7 +324,6 @@ main.on('click', 'select', function(e) {
         activityMenu.show();
         
         activityMenu.on('select', function(ee) {
-          console.log('setting to ' + ee.itemIndex);
           setLSItem('activity',SelectedActivity,activityArray[ee.itemIndex]);
           // lets be smart... and set the related Unit Type while here
           if (activityArray[ee.itemIndex] === "target")
@@ -365,7 +350,6 @@ main.on('click', 'select', function(e) {
         });
 
         displayMenu.on('select', function(ee) {
-          console.log('unit type setting to ' + ee.itemIndex);
           setLSItem('unitType',unitTypeKey,unitTypeMenu[ee.itemIndex].title);
           // now redraw main
           displayMenu.hide();
@@ -397,33 +381,12 @@ main.on('longClick', 'up', function(e) {
   startTheTime();
   mainScreen(main);
   main.show();
-  /* 
-  var wind = new UI.Window({
-    fullscreen: true,
-  });
-  var textfield = new UI.Text({
-    position: new Vector2(0, 65),
-    size: new Vector2(144, 30),
-    font: 'gothic-24-bold',
-    text: 'Text Anywhere!',
-    textAlign: 'center'
-  });
-  wind.add(textfield);
-  wind.show();
-  */
 });
+
 main.on('longClick', 'down', function(e) {
   endTheTime();
   mainScreen(main);
   main.show();
-
-  /*
-  var card = new UI.Card();
-  card.title('A Card');
-  card.subtitle('Is a Window');
-  card.body('The simplest window type in Pebble.js.');
-  card.show();
-  */
 });
 
 Pebble.addEventListener('showConfiguration', function(e) {
@@ -435,13 +398,10 @@ Pebble.addEventListener('webviewclosed',
   function(e) {
     //console.log('Configuration window returned: ' + e.response);
     var configuration = JSON.parse(decodeURIComponent(e.response));
-    console.log('name maybe: ', configuration.name.toString());
     // show the values store
     var cbNum = 0;
     for (var k in configuration) {
-        // use hasOwnProperty to filter out keys from the Object.prototype
         if (configuration.hasOwnProperty(k)) {
-            console.log('key is: ' + k + ', value is: ' + configuration[k]);
             if (k === "name")
             {
               setLSItem('users name',usersNameKey,configuration[k]);
@@ -451,10 +411,8 @@ Pebble.addEventListener('webviewclosed',
             var i, len;
             if (foundList[0] == "checkbox")
             {
-              console.log("checkbox was found...");
               if (configuration[k])
               {
-                console.log("and it is set to true...");
                 if (cbNum === 0)
                 {
                   setLSItem('Activity',ActivityKey,foundList[1]);
@@ -467,37 +425,24 @@ Pebble.addEventListener('webviewclosed',
                 // push this Activity into the Activity list
               }
             }
-            for (i = 0, len = foundList.length; i < len; i++){
-              console.log("foundList " + i + " = " + foundList[i]);
-            }
         }
     }
-    console.log('Configuration window returned: ', JSON.stringify(configuration));
-    //{"name":"Namehete","special-feature":"off","txtName":"gggg",
-    //"checkbox-swimming":false,"checkbox-running":false,"checkbox-walking":true,
-    //"checkbox-biking":false,"checkboxgggg":true}
-     
+    //console.log('Configuration window returned: ', JSON.stringify(configuration));
   }
 );
 
 function addLSItem(keyDesc,keyNum,keyVal)
 {
   var keyExistingVal = localStorage.getItem(keyNum);
-  console.log(keyDesc + ': key ' + keyNum + ' was set to ' + keyExistingVal);
+  //console.log(keyDesc + ': key ' + keyNum + ' was set to ' + keyExistingVal);
   localStorage.setItem(keyNum,keyExistingVal + ',' + keyVal);
-  console.log(keyDesc + ': key ' + keyNum + ' is now set to ' + keyExistingVal + ',' + keyVal);
+  //console.log(keyDesc + ': key ' + keyNum + ' is now set to ' + keyExistingVal + ',' + keyVal);
 }
 
 function setLSItem(keyDesc,keyNum,keyVal)
 {
-  console.log(keyDesc + ': key ' + keyNum + ' set to ' + keyVal);
+  //console.log(keyDesc + ': key ' + keyNum + ' set to ' + keyVal);
   localStorage.setItem(keyNum,keyVal);
-}
-
-function showLSItem(keyDesc,keyNum)
-{
-  var keyVal = localStorage.getItem(keyNum);
-  console.log(keyDesc + ": keyNum " + keyNum + " value is: " + keyVal);
 }
 
 function incrCounter()
@@ -616,11 +561,7 @@ function notifyOnComplete() {
     endDate = tD.toLocaleDateString();
   }
   
-  // date hardcoded cause its not important.. we are just mathing time...
-  console.log("times: start " + startTime + " and end " + endTime);
-  console.log("local Date string: " + tD.toLocaleDateString());
   var duration = Math.ceil((Date.parse(endDate + ' ' + endTime) - Date.parse(startDate + ' ' + startTime))/60000);
-  console.log('duration:' + duration);
   
   var cVal = localStorage.getItem(counterNum);
   var shortTitle = keyVal + ':' + startDate + " " + startTime + ' - ' + endDate + " " + endTime + ' (' + duration + ' min): ' + cVal + ' ' + unitTypeVal;
